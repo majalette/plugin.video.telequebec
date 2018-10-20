@@ -258,5 +258,6 @@ def getJsonBlock(url, block):
     return dataBlock
 
 def logjson(json):
+	pass
     #xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
 
