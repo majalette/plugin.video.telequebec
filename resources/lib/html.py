@@ -1,28 +1,38 @@
 # -*- coding: utf-8 -*-
+# version 3.2.2 - By dualB
 
-# version 3.1.3 - Par CB
-# version 3.0.0 - By CB
-# version 2.0.2 - By SlySen
-# version 0.2.6 - By CB
+import re, socket, urllib2, xbmc, ssl
+from log import log
 
-import re
-import socket
-import urllib2
-
-def get_url_txt(the_url):
+def get_url_txt(the_url,verified=True):
     """ function docstring """
+    log('Tentative de connection a : ' + the_url)
     req = urllib2.Request(the_url)
     req.add_header(\
-                   'User-Agent', \
-                   'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0'\
-                   )
+                       'User-Agent', \
+                       'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0'\
+                       )
     req.add_header('Accept-Charset', 'utf-8')
-    response = urllib2.urlopen(req)
-    link = response.read()
-    link = urllib2.quote(link)
-    link = urllib2.unquote(link)
-    response.close()
-    return link
+    try:
+        context = None
+        if not verified:
+            log('Requete en SSL NON VERIFIE')
+            context = ssl._create_unverified_context()
+        response = urllib2.urlopen(req,context=context)	
+        link = response.read()
+        link = urllib2.quote(link)
+        link = urllib2.unquote(link)
+        response.close()
+        return link
+    except urllib2.HTTPError, e:
+        log('HTTPError = ' + str(e.code))
+        return ''
+    except urllib2.URLError, e:
+        log('URLError = ' + str(e.reason))
+        return ''
+    except httplib.HTTPException, e:
+        log('HTTPException')
+        return ''
 
 
 def is_network_available(url):
@@ -37,5 +47,4 @@ def is_network_available(url):
     except socket.error:
         return False
 
-
-
+    

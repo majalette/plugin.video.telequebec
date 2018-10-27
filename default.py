@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-# version 3.2.1 - By CB
+# version 3.2.2 - By dualB
 
 import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
+from resources.lib.log import log
 from resources.lib import content, navig
 
 def get_params():
@@ -37,11 +38,6 @@ def set_sorting_methods(mode):
     #    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
     #return
 
-def log(msg):
-    """ function docstring """
-    if xbmcaddon.Addon().getSetting('DebugMode') == 'true':
-        xbmc.log('[%s - DEBUG]: %s' % (xbmcaddon.Addon().getAddonInfo('name'), msg))
-
 # ---
 log('--- init -----------------')
 # ---
@@ -66,10 +62,12 @@ except StandardError:
     pass
 try:
     FILTERS = urllib.unquote_plus(PARAMS["filters"])
+    log("PARAMS['filters']:"+str(FILTERS))
 except StandardError:
     FILTERS = content.FILTRES
 try:
     SOURCE_ID = urllib.unquote_plus(PARAMS["sourceId"])
+    log("PARAMS['sourceId']:"+str(SOURCE_ID))
 except StandardError:
     pass
 
@@ -83,8 +81,7 @@ elif MODE == 99:
     
 else:
     navig.peupler(filtres)
-    set_content('episodes')
-
+    set_content('Videos')
 
 if MODE is not 99:
     set_sorting_methods(MODE)

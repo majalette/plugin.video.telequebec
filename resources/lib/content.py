@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
-# version 3.1.3 - Par CB
+# version 3.2.2 - By dualB
 
 import urllib2, simplejson, parse, cache, re, xbmcaddon,xbmc
+from log import log
 
 BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/'
 AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/Az'
@@ -16,7 +16,6 @@ EPISODE = 'Episode'
 LABEL = 'label'
 FILTRES = '{"content":{"genreId":"","mediaBundleId":-1},"show":{"' + SEASON + '":"","' + EPISODE + '":"","' + LABEL + '":""},"fullNameItems":[],"sourceId":""}'
 INTEGRAL = 'Integral'
-
 
 def dictOfGenres(filtres):
     liste =[]
@@ -79,7 +78,6 @@ def dictOfPopulaires(filtres):
 def formatListe(liste, filtres):
     newListe = []
     for item in liste:
-        print item.keys()
         newItem = {}
         newItem['isDir'] = True
         newItem['nom'] = item['view']['title']
@@ -93,8 +91,8 @@ def formatListe(liste, filtres):
         newItem['filtres'] = parse.getCopy(filtres)
         newItem['filtres']['content']['mediaBundleId'] = item['mediaBundleId']
         newListe.append(newItem)
-
     return newListe
+
 def get_liste_populaire(filtres):
     show = getLinkPop(filtres['content']['url'])
     items = show['items']
@@ -233,7 +231,7 @@ def getThumbnails(show):
     return getImage(show['view']['thumbImg'], '320','180')
 
 def getFanArt(show):
-    return getImage(show['view']['headerImg'],'1280','720')
+    return getImage(show['view']['headerImg'],'1600','900')
 
 def getImage(url,width,height):
     link = re.sub('{w}', width, url)
@@ -257,7 +255,4 @@ def getJsonBlock(url, block):
         dataBlock = []
     return dataBlock
 
-def logjson(json):
-	pass
-    #xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
 

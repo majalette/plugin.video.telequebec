@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-
-# version 3.1.3 - By CB
-# version 3.0.0 - By CB
-# version 2.0.2 - By SlySen
-# version 0.2.6 - By CB
+# version 3.2.2 - By dualB
 
 import xbmcaddon, os, xbmc, time, sys, html
+from log import log
 
 ADDON = xbmcaddon.Addon()
 
@@ -27,22 +24,25 @@ def is_cached_content_expired(last_update):
     return expired
 
 
-def get_cached_content(path):
+def get_cached_content(path,verified=True):
     """ function docstring """
     content = None
     try:
         filename = get_cached_filename(path)
         if os.path.exists(filename) and not is_cached_content_expired(os.path.getmtime(filename)):
+            log('Lecture en CACHE du contenu suivant :' + path)
             content = open(filename).read()
         else:
-            ###CB  ne devrait pas etre utilisé ici, mais en amont
-            #check_for_internet_connection()
-            content = html.get_url_txt(path)
-            try:
-                file(filename, "w").write(content) # cache the requested web content
-            except StandardError:
-                traceback.print_exc()
+            log('Lecture en LIGNE du contenu suivant :' + path)
+            content = html.get_url_txt(path,verified)
+            if len(content)>0:
+                try:
+                    file(filename, "w").write(content) # cache the requested web content
+                except StandardError:
+                    log('Impossible d ecrire le contenu pour le conserver en cache')
+                    traceback.print_exc()
     except StandardError:
+        log('ERREUR - Impossible de trouver le contenu suivant :' + path)
         return None
     return content
 

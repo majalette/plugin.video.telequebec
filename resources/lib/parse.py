@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-# version 3.1.3 - By CB
+# version 3.2.2 - By dualB
 
-import copy
-import content
-#from operator import itemgetter
-
+import copy, content
 
 def ListeVideosFiltrees(mediaBundleId, filtres):
     liste = content.getListeOfVideo(mediaBundleId, filtres)
@@ -87,7 +84,6 @@ def ListeVideosGroupees(filtres):
             oneShow['filtres']['sourceId'] = oneShow['sourceId']
             newDirs.append(oneShow)
 
-        
         #newDirs = sorted(newDirs, key=itemgetter('startDate'), reverse=True)
         return popEpisodeComplet(newDirs) #Amener l'episode complet en haut de liste
 
@@ -104,8 +100,6 @@ def popEpisodeComplet(liste):
     if len(liste)>0: 
         liste.insert(0,liste.pop(j))
     return liste
-
-
 
 
 def getCopy(item):

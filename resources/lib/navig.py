@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-# version 3.1.3 - By CB
+# version 3.2.2 - By dualB
 
 import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc, parse, content
+from log import log
 
 ADDON = xbmcaddon.Addon()
 ADDON_IMAGES_BASEPATH = ADDON.getAddonInfo('path')+'/resources/media/images/'
@@ -18,7 +19,7 @@ def peupler(filtres):
         if genreId==-2:
             ajouterItemAuMenu(content.dictOfPopulaires(filtres))
         elif genreId>=-23 and genreId<=-21:
-            xbmc.log('populiare!!')
+            log('Section populaire')
             ajouterItemAuMenu(content.get_liste_populaire(filtres))
         elif genreId!='':
             ajouterItemAuMenu(content.get_liste_emissions(filtres))
@@ -32,7 +33,6 @@ def ajouterItemAuMenu(items):
     xbmcplugin.addSortMethod(__handle__, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.addSortMethod(__handle__, xbmcplugin.SORT_METHOD_DATE)
 
-
     for item in items:
         if item['isDir'] == True:
             ajouterRepertoire(item)
@@ -43,9 +43,7 @@ def ajouterItemAuMenu(items):
             xbmc.executebuiltin('Container.SetSortDirection(0)')
 
 
-
 def ajouterRepertoire(show):
-
     nom = show['nom']
     url = show['url']
     iconimage =show['image']
@@ -88,6 +86,8 @@ def setFanart(liz,fanart):
             liz.setProperty('fanart_image', fanart)
         else:
             liz.setProperty('fanart_image', ADDON_FANART)
+    else:
+        pass
 
 
 def ajouterVideo(show):
@@ -141,17 +141,11 @@ RE_AFTER_CR = re.compile(r'\n.*')
 def jouer_video(url,media_uid):
     """ function docstring """
     check_for_internet_connection()
-
     ref = re.split('/',url)
     refID = ref[len(ref)-1]
 
     # Obtenir JSON avec liens RTMP du playlistService
-    video_json = simplejson.loads(\
-        cache.get_cached_content(\
-            'http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid\
-        )\
-    )
-
+    video_json = simplejson.loads(cache.get_cached_content('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid))
     m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
@@ -175,7 +169,7 @@ def check_for_internet_connection():
     return
 
 def m3u8(refID):
-    return cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID)
+    return cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID,False)
 
 def remove_any_html_tags(text, crlf=True):
     """ function docstring """
