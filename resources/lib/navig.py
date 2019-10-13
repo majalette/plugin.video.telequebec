@@ -186,18 +186,27 @@ def obtenirMeilleurStream(pl):
     maxBW = 0
     bandWidth=None
     uri = None
+    res = None
+    maxres = int(ADDON.getSetting("MaxResolution"))
     for line in pl.split('\n'):
         if re.search('#EXT-X',line):
-            bandWidth=None
+            bandWidth = None
             try:
-                match  = re.search('BANDWIDTH=(\d+)',line)
+                match = re.search(r'BANDWIDTH=(\d+)',line)
                 bandWidth = int(match.group(1))
             except :
-                bandWidth=None
+                bandWidth = None
+            res = None
+            try:
+                match = re.search(r'RESOLUTION=\d+x(\d+)',line)
+                res = int(match.group(1))
+            except :
+                res = None
         elif line.startswith('http'):
-            if bandWidth!=None:
-                if bandWidth>maxBW:
-                    maxBW = bandWidth
-                    uri = line
+            if bandWidth != None:
+                if bandWidth > maxBW:
+                    if res != None and res <= maxres:
+                        maxBW = bandWidth
+                        uri = line
     return uri
 
