@@ -138,14 +138,15 @@ def ajouterVideo(show):
 RE_HTML_TAGS = re.compile(r'<[^>]+>')
 RE_AFTER_CR = re.compile(r'\n.*')
 
-def jouer_video(url,media_uid):
+def jouer_video(url):
     """ function docstring """
     check_for_internet_connection()
     ref = re.split('/',url)
     refID = ref[len(ref)-1]
 
     # Obtenir JSON avec liens RTMP du playlistService
-    video_json = simplejson.loads(cache.get_cached_content('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid))
+    video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v2/player/%s' % refID))
+    thumbnail_url = content.getImage(video_json['imageUrlTemplate'], '320', '180')
     m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
@@ -155,8 +156,8 @@ def jouer_video(url,media_uid):
     if uri:
         item = xbmcgui.ListItem(\
             video_json['title'],\
-            iconImage=video_json['imageUrl'],\
-            thumbnailImage=video_json['imageUrl'], path=uri)
+            iconImage=thumbnail_url,\
+            thumbnailImage=thumbnail_url, path=uri)
         play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
