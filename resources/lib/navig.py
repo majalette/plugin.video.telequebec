@@ -13,7 +13,6 @@ __handle__ = int(sys.argv[1])
 def peupler(filtres):
     if filtres['content']['mediaBundleId']>0:
         ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
-    
     else:
         genreId = filtres['content']['genreId']
         if genreId==-2:
@@ -63,7 +62,7 @@ def ajouterRepertoire(show):
     entry_url = sys.argv[0]+"?url="+url+\
         "&mode=1"+\
         "&filters="+urllib.quote(simplejson.dumps(filtres))
-  
+
     is_it_ok = True
     liz = xbmcgui.ListItem(nom,iconImage=iconimage,thumbnailImage=iconimage)
 
@@ -105,13 +104,13 @@ def ajouterVideo(show):
     premiere = show['startDate']
     episode = show['episodeNo']
     saison = show['seasonNo']
-    
+
     is_it_ok = True
     entry_url = sys.argv[0]+"?url="+urllib.quote_plus(the_url)+"&sourceId="+(sourceId)
 
     if resume != '':
         if ADDON.getSetting('EmissionNameInPlotEnabled') == 'true':
-            resume = '[B]'+name.lstrip()+'[/B]'+'[CR]'+resume.lstrip() 
+            resume = '[B]'+name.lstrip()+'[/B]'+'[CR]'+resume.lstrip()
     else:
         resume = name.lstrip()
 
@@ -138,7 +137,7 @@ def ajouterVideo(show):
 RE_HTML_TAGS = re.compile(r'<[^>]+>')
 RE_AFTER_CR = re.compile(r'\n.*')
 
-def jouer_video(url):
+def jouer_video(url,media_uid):
     """ function docstring """
     check_for_internet_connection()
     ref = re.split('/',url)
@@ -150,7 +149,7 @@ def jouer_video(url):
     m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
-    uri = obtenirMeilleurStream(m3u8_pl)   
+    uri = obtenirMeilleurStream(m3u8_pl)
 
     # lance le stream
     if uri:
@@ -210,4 +209,3 @@ def obtenirMeilleurStream(pl):
                         maxBW = bandWidth
                         uri = line
     return uri
-
