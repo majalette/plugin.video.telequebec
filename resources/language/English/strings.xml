@@ -8,6 +8,7 @@
     <string id="32102">If available, use the tv-show image as fanart</string>
     <string id="32114">Show tv-show name in the description section</string>
     <string id="32115">Show popup message on startup</string>
+    <string id="32116">Maximum resolution</string>
 
     <!-- CACHE -->
     <string id="32105">Cache</string>

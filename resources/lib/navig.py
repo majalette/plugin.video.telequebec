@@ -13,7 +13,6 @@ __handle__ = int(sys.argv[1])
 def peupler(filtres):
     if filtres['content']['mediaBundleId']>0:
         ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
-    
     else:
         genreId = filtres['content']['genreId']
         if genreId==-2:
@@ -63,7 +62,7 @@ def ajouterRepertoire(show):
     entry_url = sys.argv[0]+"?url="+url+\
         "&mode=1"+\
         "&filters="+urllib.quote(simplejson.dumps(filtres))
-  
+
     is_it_ok = True
     liz = xbmcgui.ListItem(nom,iconImage=iconimage,thumbnailImage=iconimage)
 
@@ -105,13 +104,13 @@ def ajouterVideo(show):
     premiere = show['startDate']
     episode = show['episodeNo']
     saison = show['seasonNo']
-    
+
     is_it_ok = True
     entry_url = sys.argv[0]+"?url="+urllib.quote_plus(the_url)+"&sourceId="+(sourceId)
 
     if resume != '':
         if ADDON.getSetting('EmissionNameInPlotEnabled') == 'true':
-            resume = '[B]'+name.lstrip()+'[/B]'+'[CR]'+resume.lstrip() 
+            resume = '[B]'+name.lstrip()+'[/B]'+'[CR]'+resume.lstrip()
     else:
         resume = name.lstrip()
 
@@ -145,18 +144,19 @@ def jouer_video(url,media_uid):
     refID = ref[len(ref)-1]
 
     # Obtenir JSON avec liens RTMP du playlistService
-    video_json = simplejson.loads(cache.get_cached_content('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid))
+    video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v2/player/%s' % refID))
+    thumbnail_url = content.getImage(video_json['imageUrlTemplate'], '320', '180')
     m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
-    uri = obtenirMeilleurStream(m3u8_pl)   
+    uri = obtenirMeilleurStream(m3u8_pl)
 
     # lance le stream
     if uri:
         item = xbmcgui.ListItem(\
             video_json['title'],\
-            iconImage=video_json['imageUrl'],\
-            thumbnailImage=video_json['imageUrl'], path=uri)
+            iconImage=thumbnail_url,\
+            thumbnailImage=thumbnail_url, path=uri)
         play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
@@ -186,18 +186,26 @@ def obtenirMeilleurStream(pl):
     maxBW = 0
     bandWidth=None
     uri = None
+    res = None
+    maxres = int(ADDON.getSetting("MaxResolution"))
     for line in pl.split('\n'):
         if re.search('#EXT-X',line):
-            bandWidth=None
+            bandWidth = None
             try:
-                match  = re.search('BANDWIDTH=(\d+)',line)
+                match = re.search(r'BANDWIDTH=(\d+)',line)
                 bandWidth = int(match.group(1))
             except :
-                bandWidth=None
+                bandWidth = None
+            res = None
+            try:
+                match = re.search(r'RESOLUTION=\d+x(\d+)',line)
+                res = int(match.group(1))
+            except :
+                res = None
         elif line.startswith('http'):
-            if bandWidth!=None:
-                if bandWidth>maxBW:
-                    maxBW = bandWidth
-                    uri = line
+            if bandWidth != None:
+                if bandWidth > maxBW:
+                    if res != None and res <= maxres:
+                        maxBW = bandWidth
+                        uri = line
     return uri
-

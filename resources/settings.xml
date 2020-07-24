@@ -5,6 +5,7 @@
         <setting label="32101" type="bool" id="FanartEnabled" default="true"/>
         <setting label="32102" type="bool" id="FanartEmissionsEnabled" default="true" enable="eq(-1,true)"/>
         <setting label="32114" type="bool" id="EmissionNameInPlotEnabled" default="true"/>
+        <setting label="32116" type="select" id="MaxResolution" values="480|540|720|1080" default="1080"/>
     </category> 
 
     <!-- ADVANCE -->
