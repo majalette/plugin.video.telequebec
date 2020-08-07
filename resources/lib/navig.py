@@ -38,7 +38,7 @@ def ajouterItemAuMenu(items):
 
         else:
             ajouterVideo(item)
-            xbmc.executebuiltin('Container.SetViewMode('+str(xbmcplugin.SORT_METHOD_DATE)+')')
+            #xbmc.executebuiltin('Container.SetViewMode('+str(xbmcplugin.SORT_METHOD_DATE)+')')
             xbmc.executebuiltin('Container.SetSortDirection(0)')
 
 
@@ -139,14 +139,14 @@ RE_AFTER_CR = re.compile(r'\n.*')
 
 def jouer_video(url,media_uid):
     """ function docstring """
-    check_for_internet_connection()
     ref = re.split('/',url)
     refID = ref[len(ref)-1]
 
     # Obtenir JSON avec liens RTMP du playlistService
-    video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v2/player/%s' % refID))
+	
+    video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v4/player/%s' % refID))
     thumbnail_url = content.getImage(video_json['imageUrlTemplate'], '320', '180')
-    m3u8_pl=m3u8(refID)
+    m3u8_pl=getStreamInfo(video_json,refID)
 
     # Cherche le stream de meilleure qualité
     uri = obtenirMeilleurStream(m3u8_pl)
@@ -160,16 +160,39 @@ def jouer_video(url,media_uid):
         play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
-        xbmc.executebuiltin('Notification(Aucun lien disponible,Incapable d''obtenir lien du vidéo,5000)')
+        xbmc.executebuiltin('Notification(Aucun lien disponible,Incapable d\'obtenir le lien du vidéo,5000)')
+def getStreamInfo(video_json,refID):
+    streams = video_json['streamInfos']
+    log('STREAMS : ')
+    for stream in streams:
+        if stream['source']=='Limelight':
+            return m3u8LL(refID)
+        elif stream['source']=='Brightcove':
+            return m3u8BC(stream['sourceId'])
 
-def check_for_internet_connection():
-    """ function docstring """
-    if ADDON.getSetting('NetworkDetection') == 'false':
-        return
-    return
+def getPolicyKey():
+    # hardcoded, in case...
+    key = 'BCpkADawqM3lBz07fdV6Q__Z8jM6RenArMfaM8YoxyIBexztP2lLBvXw2PlknyXbnK_1MMSmXw7qKqOM9mPI-doKvmqeywTJ3wKVzhdJSQN8JthhhmrUT5zVikMU8OvQEGirR-e7e7iqmZSC'
+    
+    try:
+        data = cache.get_cached_content('https://players.brightcove.net/6150020952001/default_default/config.json',True)
+        key = simplejson.loads(data)['video_cloud']['policy_key']
 
-def m3u8(refID):
-    return cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID,False)
+    except Exception:
+        log('ERREUR, impossible de récupérer dynamiquement la Policy Key.')
+        return key
+    return key
+
+def m3u8BC(media_uid):
+    log('BRIGHTCOVE : %s' % media_uid)
+    key = getPolicyKey()
+    header = {'key':'Accept','value':'application/json;pk=%s'%key }
+    a= cache.get_cached_content('https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/%s/playlist.m3u8' % media_uid,True,[header])
+    return a
+
+def m3u8LL(refID):
+    return cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID,True)
+
 
 def remove_any_html_tags(text, crlf=True):
     """ function docstring """
