@@ -18,7 +18,6 @@ def peupler(filtres):
         if genreId==-2:
             ajouterItemAuMenu(content.dictOfPopulaires(filtres))
         elif genreId>=-23 and genreId<=-21:
-            log('Section populaire')
             ajouterItemAuMenu(content.get_liste_populaire(filtres))
         elif genreId!='':
             ajouterItemAuMenu(content.get_liste_emissions(filtres))
@@ -27,11 +26,10 @@ def peupler(filtres):
             ajouterItemAuMenu(content.dictOfMainDirs(filtres))
             ajouterItemAuMenu(content.dictOfGenres(filtres))
            
-
 def ajouterLive():
-    liz = xbmcgui.ListItem('[I]En direct[/I]', iconImage=ADDON_IMAGES_BASEPATH+"default-video.png")
-    liz.setInfo(\
-        type="Video",infoLabels={"Title":'Télé-Québec - EN DIRECT' })
+    text = 'Télé-Québec - EN DIRECT'
+    liz = xbmcgui.ListItem(text, iconImage=ADDON.getAddonInfo('path')+'/icon.png',thumbnailImage=ADDON.getAddonInfo('path')+'/icon.png')
+    liz.setInfo(  type="Video",infoLabels={"Title":'[I][COLOR cyan]'+text+'[/COLOR][/I]', "plot":'Télé-Québec en direct.'  })
     setFanart(liz,ADDON_FANART)
     liz.setProperty('IsPlayable', 'true')
     entry_url = sys.argv[0]+"?url=live&sourceId=live"
@@ -207,7 +205,6 @@ def m3u8LL(refID):
     return obtenirMeilleurStream(cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID,True))
 
 def m3u8BC(sourceId):
-    log('BRIGHTCOVE : %s' % sourceId)
     key = getPolicyKey()
     header = {'key':'Accept','value':'application/json;pk=%s'%key }
     a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=dcd6de5f-a864-4ef6-b416-dcdc4f4af216' %sourceId,True,[header]))
