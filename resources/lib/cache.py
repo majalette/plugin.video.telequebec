@@ -24,7 +24,7 @@ def is_cached_content_expired(last_update):
     return expired
 
 
-def get_cached_content(path,verified=True):
+def get_cached_content(path,verified=True,headers=[]):
     """ function docstring """
     content = None
     try:
@@ -34,7 +34,7 @@ def get_cached_content(path,verified=True):
             content = open(filename).read()
         else:
             log('Lecture en LIGNE du contenu suivant :' + path)
-            content = html.get_url_txt(path,verified)
+            content = html.get_url_txt(path,verified,headers)
             if len(content)>0:
                 try:
                     file(filename, "w").write(content) # cache the requested web content
