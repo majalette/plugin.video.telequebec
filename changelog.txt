@@ -1,6 +1,6 @@
 ﻿[B]3.3.0| dualB | 2020-08-08[/B] 
 - Support des streams adaptifs Brightcove 
-- Ajout de la limite de bande passante
+- Ajout de la limite de la résolution
 - Ajout de la diffusion en direct
 - Retrait du classement automatique des items
 
