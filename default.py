@@ -38,10 +38,6 @@ def set_sorting_methods(mode):
     #    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
     #return
 
-# ---
-log('--- init -----------------')
-# ---
-
 PARAMS = get_params()
 
 URL = None
@@ -72,7 +68,7 @@ except StandardError:
     pass
 
 filtres = simplejson.loads(FILTERS)
-   
+
 if SOURCE_ID !='':
     navig.jouer_video(URL,SOURCE_ID)
 

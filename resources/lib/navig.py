@@ -46,7 +46,7 @@ def ajouterItemAuMenu(items):
 
         else:
             ajouterVideo(item)
-            #xbmc.executebuiltin('Container.SetViewMode('+str(xbmcplugin.SORT_METHOD_DATE)+')')
+            xbmc.executebuiltin('Container.SetViewMode('+str(xbmcplugin.SORT_METHOD_DATE)+')')
             #xbmc.executebuiltin('Container.SetSortDirection(0)')
 
 
@@ -138,6 +138,11 @@ def ajouterVideo(show):
     liz.addContextMenuItems([('Informations', 'Action(Info)')])
     setFanart(liz,fanart)
     liz.setProperty('IsPlayable', 'true')
+    if "Brightcove" in show['streamInfo']['source']:
+        liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+        liz.setMimeType('application/dash+xml')
+        liz.setContentLookup(False)
 
     is_it_ok = xbmcplugin.addDirectoryItem(handle=__handle__, url=entry_url, listitem=liz, isFolder=False)
     return is_it_ok
@@ -152,14 +157,14 @@ def jouer_live():
         play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
-        xbmc.executebuiltin('Notification(Aucun lien disponible,Incapable d\'obtenir le lien du vidéo,5000)')
+        xbmc.executebuiltin("Notification(Aucun lien disponible,Incapable d'obtenir le lien du vidéo,5000)")
 
 def liveStreamURL():
     key = getPolicyKey()
     header = {'key':'Accept','value':'application/json;pk=%s'%key }
     a= cache.get_cached_content('https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/playlist.m3u8',True,[header])
     return 'https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/' + obtenirMeilleurStream(a,'profile')
-
+   
 def jouer_video(url,media_uid):
 
     if "live" in url:
@@ -169,19 +174,11 @@ def jouer_video(url,media_uid):
         ref = re.split('/',url)
         refID = ref[len(ref)-1]
 
-        # Obtenir JSON avec liens RTMP du playlistService
-        
+      
         video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v4/player/%s' % refID))
         thumbnail_url = content.getImage(video_json['imageUrlTemplate'], '320', '180')
+        
         uri = getURI(video_json,refID)
-        #m3u8_pl=getStreamInfo(video_json,refID)
-
-        # Cherche le stream de meilleure qualité
-        #uri = obtenirMeilleurStream(m3u8_pl)
-        #uri = 'https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6165816457001/profile_0/chunklist.m3u8'
-        #uri = 'https://ssaiplayback.us-east-1.prod.boltdns.net/playback/once/v1/hls/v4/clear/6150020952001/dcd6de5f-a864-4ef6-b416-dcdc4f4af216/550df49a-bc39-4e31-b536-63db1eb5b057/1ae1e275-7e44-414d-b54c-b9d4a8c3a3dd/dfce636d-7f53-478b-bf2b-19a2326ce11a/media.m3u8'
-        #uri = 'http://ssaiplayback.prod.boltdns.net/playback/once/v1/hls/v4/clear/6150020952001/dcd6de5f-a864-4ef6-b416-dcdc4f4af216/91231be3-d0dd-436f-9ad2-9c1c117b149d/master.m3u8?bc_token=NWYyZGU3NmRfMmNiY2VkZjRkY2VlMzNmYmU2ODc2NGUyMWUxNjlkMDkwMWVmNmE2NWM3ODFkNDMxM2I3NjI4YWQ5YWVkNWQ4MQ%3D%3D&window.location.href={window.location.href}&window.location.href={window.location.href}'
-        # lance le stream
         if uri:
             item = xbmcgui.ListItem(\
                 video_json['title'],\
@@ -191,7 +188,6 @@ def jouer_video(url,media_uid):
             xbmcplugin.setResolvedUrl(__handle__,True, item)
         else:
             xbmc.executebuiltin('Notification(Aucun lien disponible,Incapable d\'obtenir le lien du vidéo,5000)')
-
 
 def getURI(video_json,refID):
     streams = video_json['streamInfos']
@@ -210,7 +206,9 @@ def m3u8BC(sourceId):
     a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=dcd6de5f-a864-4ef6-b416-dcdc4f4af216' %sourceId,True,[header]))
     last = None
     for source in a['sources']:
-        if "x-mpegURL" in source['type']:
+        protocol = "dash+xml"
+        #protocol = "x-mpegURL"
+        if protocol in source['type']:
             last = source['src']
 
     return last

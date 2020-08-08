@@ -4,10 +4,10 @@
 import urllib2, simplejson, parse, cache, re, xbmcaddon,xbmc
 from log import log
 
-BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/'
-AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/Az'
-DOSSIERS_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/folders'
-POPULAIRE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/populars/'
+BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/'
+AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/Az'
+DOSSIERS_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/folders'
+POPULAIRE_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/populars/'
 
 MEDIA_BUNDLE_URL = BASE_URL + 'MediaBundle/'
 
@@ -178,6 +178,7 @@ def getListeOfVideo(mediaBundleId, filtres):
 
             newItem['nomDuShow'] = mainShowName
             
+ 
             newItem['sourceId'] = episode['streamInfo']['sourceId']
             newItem[EPISODE] = 'Episode ' + str(episode['episodeNo']).zfill(2)
             newItem['fanart'] = fanart_url
