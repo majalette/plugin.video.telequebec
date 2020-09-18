@@ -138,11 +138,12 @@ def ajouterVideo(show):
     liz.addContextMenuItems([('Informations', 'Action(Info)')])
     setFanart(liz,fanart)
     liz.setProperty('IsPlayable', 'true')
-    if "Brightcove" in show['streamInfo']['source']:
-        liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
-        liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-        liz.setMimeType('application/dash+xml')
-        liz.setContentLookup(False)
+    
+    #Assumé que tous les liens sont pour Brightcove
+    liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+    liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+    liz.setMimeType('application/dash+xml')
+    liz.setContentLookup(False)
 
     is_it_ok = xbmcplugin.addDirectoryItem(handle=__handle__, url=entry_url, listitem=liz, isFolder=False)
     return is_it_ok
@@ -160,8 +161,8 @@ def jouer_live():
         xbmc.executebuiltin("Notification(Aucun lien disponible,Incapable d'obtenir le lien du vidéo,5000)")
 
 def liveStreamURL():
-    key = getPolicyKey()
-    header = {'key':'Accept','value':'application/json;pk=%s'%key }
+    config = getBrightcoveConfig()
+    header = {'key':'Accept','value':'application/json;pk=%s'% config['key'] }
     a= cache.get_cached_content('https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/playlist.m3u8',True,[header])
     return 'https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/' + obtenirMeilleurStream(a,'profile')
    
@@ -191,41 +192,44 @@ def jouer_video(url,media_uid):
 
 def getURI(video_json,refID):
     streams = video_json['streamInfos']
+    #Priorité au lien Brightcove
+    #Retiré la lecture des liens Limelight
     for stream in streams:
-        if stream['source']=='Limelight':
-            return m3u8LL(refID)
-        elif stream['source']=='Brightcove':
-            return m3u8BC(stream['sourceId'])
-
-def m3u8LL(refID):
-    return obtenirMeilleurStream(cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID,True))
-
+        if stream['source']=='Brightcove':
+            return m3u8BC(stream['sourceId'])       
+    
 def m3u8BC(sourceId):
-    key = getPolicyKey()
-    header = {'key':'Accept','value':'application/json;pk=%s'%key }
-    a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=dcd6de5f-a864-4ef6-b416-dcdc4f4af216' %sourceId,True,[header]))
+    config = getBrightcoveConfig()
+    log('KEY : %s' % config['key'])
+    log('Ad_Config_ID : %s' %config['ad'])
+    header = {'key':'Accept','value':'application/json;pk=%s'% config['key'] }
+    a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=%s' %(sourceId,config['ad']) ,True,[header]))
     last = None
     for source in a['sources']:
         protocol = "dash+xml"
+        https = "https"
         #protocol = "x-mpegURL"
         if protocol in source['type']:
-            last = source['src']
-
+            if https in source['vmap']:
+                last = source['src']
     return last
 
 
-def getPolicyKey():
+def getBrightcoveConfig():
     # hardcoded, in case...
-    key = 'BCpkADawqM3lBz07fdV6Q__Z8jM6RenArMfaM8YoxyIBexztP2lLBvXw2PlknyXbnK_1MMSmXw7qKqOM9mPI-doKvmqeywTJ3wKVzhdJSQN8JthhhmrUT5zVikMU8OvQEGirR-e7e7iqmZSC'
-    
+    answer = {}
+    answer['key'] = 'BCpkADawqM3lBz07fdV6Q__Z8jM6RenArMfaM8YoxyIBexztP2lLBvXw2PlknyXbnK_1MMSmXw7qKqOM9mPI-doKvmqeywTJ3wKVzhdJSQN8JthhhmrUT5zVikMU8OvQEGirR-e7e7iqmZSC'
+    answer['ad'] = 'dcd6de5f-a864-4ef6-b416-dcdc4f4af216'
     try:
         data = cache.get_cached_content('https://players.brightcove.net/6150020952001/default_default/config.json',True)
-        key = simplejson.loads(data)['video_cloud']['policy_key']
+        jsonData =  simplejson.loads(data)
+        answer['key']  =jsonData['video_cloud']['policy_key']
+        answer['ad'] = jsonData['ad_config_id']
 
     except Exception:
-        log('ERREUR, impossible de récupérer dynamiquement la Policy Key.')
-        return key
-    return key
+        log('ERREUR, impossible de récupérer dynamiquement la configuration de Brightcove.')
+ 
+    return answer
 
 
 
@@ -246,18 +250,21 @@ def obtenirMeilleurStream(pl,word='http'):
     uri = None
     res = None
     maxres = int(ADDON.getSetting("MaxResolution"))
+
     for line in pl.split('\n'):
         if re.search('#EXT-X',line):
             bandWidth = None
             try:
                 match = re.search(r'BANDWIDTH=(\d+)',line)
                 bandWidth = int(match.group(1))
+                log('LE courant bandwitdh vaut %s' % bandWidth)
             except :
                 bandWidth = None
             res = None
             try:
                 match = re.search(r'RESOLUTION=\d+x(\d+)',line)
                 res = int(match.group(1))
+                log('LE résolution courante vaut %s' % res)
             except :
                 res = None
         elif line.startswith(word):
@@ -266,4 +273,5 @@ def obtenirMeilleurStream(pl,word='http'):
                     if res != None and res <= maxres:
                         maxBW = bandWidth
                         uri = line
+    log('LE BITRATE CHOISI EST ________%s' % maxBW)
     return uri

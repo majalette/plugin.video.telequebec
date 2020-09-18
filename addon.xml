@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.telequebec"
        name="Télé-Québec"
-       version="3.3.0"
+       version="3.4.0"
        provider-name="dualB"
 >
     <requires>
@@ -9,6 +9,7 @@
         <import addon="xbmc.json" version="6.0.0"/>
         <import addon="xbmc.addon" version="12.0.0"/>
         <import addon="script.module.simplejson" version="2.0.10"/>
+        <import addon="inputstream.adaptive" version="1.0.8"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
