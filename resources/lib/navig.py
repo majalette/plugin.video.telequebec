@@ -163,8 +163,8 @@ def jouer_live():
 def liveStreamURL():
     config = getBrightcoveConfig()
     header = {'key':'Accept','value':'application/json;pk=%s'% config['key'] }
-    a= cache.get_cached_content('https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/playlist.m3u8',True,[header])
-    return 'https://bcovlive-a.akamaihd.net/86e93a0ab79047e1b216e2b0a1ac5363/us-east-1/6150020952001/' + obtenirMeilleurStream(a,'profile')
+    a= cache.get_cached_content('https://bcovlive-a.akamaihd.net/575d86160eb143458d51f7ab187a4e68/us-east-1/6101674910001/playlist.m3u8',True,[header])
+    return 'https://bcovlive-a.akamaihd.net/575d86160eb143458d51f7ab187a4e68/us-east-1/6101674910001/' + obtenirMeilleurStream(a,'profile')
    
 def jouer_video(url,media_uid):
 
