@@ -1,4 +1,8 @@
-﻿[B]3.4.0| dualB | 2020-09-18[/B] 
+﻿[B]4.0.0| anisite | 2021-02-28[/B] 
+- Support Kodi 19 (Python 3)
+- Support nouveau site Télé-Québec
+
+[B]3.4.0| dualB | 2020-09-18[/B] 
 - Retrait définitif du support pour les liens LimeLight (Brightcove seulement)
 
 [B]3.3.0| dualB | 2020-08-08[/B] 

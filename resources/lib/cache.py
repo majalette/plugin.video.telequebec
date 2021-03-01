@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import xbmcaddon, os, xbmc, time, sys, html
-from log import log
+import xbmcaddon, os, xbmc, time, sys
+from . import log, html
 
 ADDON = xbmcaddon.Addon()
 
-ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')).decode('utf-8'), ".cache")
+ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')), ".cache")
 ADDON_CACHE_TTL = float(ADDON.getSetting('CacheTTL').replace("0", ".5").replace("73", "0"))
 
 if not os.path.exists(ADDON_CACHE_BASEDIR):
@@ -30,19 +30,22 @@ def get_cached_content(path,verified=True,headers=[]):
     try:
         filename = get_cached_filename(path)
         if os.path.exists(filename) and not is_cached_content_expired(os.path.getmtime(filename)):
-            log('Lecture en CACHE du contenu suivant :' + path)
+            log.log('Lecture en CACHE du contenu suivant :' + path)
             content = open(filename).read()
         else:
-            log('Lecture en LIGNE du contenu suivant :' + path)
+            log.log('Lecture en LIGNE du contenu suivant :' + path)
             content = html.get_url_txt(path,verified,headers)
             if len(content)>0:
                 try:
-                    file(filename, "w").write(content) # cache the requested web content
-                except StandardError:
-                    log('Impossible d ecrire le contenu pour le conserver en cache')
-                    traceback.print_exc()
-    except StandardError:
-        log('ERREUR - Impossible de trouver le contenu suivant :' + path)
+                    if sys.version >= "3":
+                        file(filename, "w").write(content) # cache the requested web content
+                    else:
+                        open(filename, "w").write(content) # cache the requested web content
+                except Exception:
+                    log.log('Impossible d ecrire le contenu pour le conserver en cache')
+
+    except Exception:
+        log.log('ERREUR - Impossible de trouver le contenu suivant :' + path)
         return None
     return content
 

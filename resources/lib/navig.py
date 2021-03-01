@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc, parse, content
-from log import log
+import sys, xbmcgui, xbmcplugin, xbmcaddon, re, simplejson, xbmc
+from . import log, parse, content, cache
+
+if sys.version_info.major >= 3:
+    # Python 3 stuff
+    from urllib.parse import quote_plus, unquote, quote
+    from urllib.request import Request, urlopen
+else:
+    # Python 2 stuff
+    from urllib import quote_plus, unquote, quote
+    from urllib2 import Request, urlopen
 
 ADDON = xbmcaddon.Addon()
 ADDON_IMAGES_BASEPATH = ADDON.getAddonInfo('path')+'/resources/media/images/'
-ADDON_FANART = ADDON.getAddonInfo('path')+'/fanart.jpg'
+ADDON_FANART = ADDON.getAddonInfo('path')+'/resources/fanart.jpg'
 
 __handle__ = int(sys.argv[1])
 
@@ -14,12 +23,15 @@ def peupler(filtres):
     if filtres['content']['mediaBundleId']>0:
         ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
     else:
-        genreId = filtres['content']['genreId']
+        if filtres['content']['genreId'] == "":
+            filtres['content']['genreId'] = 0
+
+        genreId = int(filtres['content']['genreId'])
         if genreId==-2:
             ajouterItemAuMenu(content.dictOfPopulaires(filtres))
         elif genreId>=-23 and genreId<=-21:
             ajouterItemAuMenu(content.get_liste_populaire(filtres))
-        elif genreId!='':
+        elif genreId!=0:
             ajouterItemAuMenu(content.get_liste_emissions(filtres))
         else:
             ajouterLive()
@@ -28,7 +40,8 @@ def peupler(filtres):
            
 def ajouterLive():
     text = 'Télé-Québec - EN DIRECT'
-    liz = xbmcgui.ListItem(text, iconImage=ADDON.getAddonInfo('path')+'/icon.png',thumbnailImage=ADDON.getAddonInfo('path')+'/icon.png')
+    liz = xbmcgui.ListItem(text)
+    liz.setArt({ 'thumb' : ADDON.getAddonInfo('path')+'/resources/icon.png' } )
     liz.setInfo(  type="Video",infoLabels={"Title":'[I][COLOR cyan]'+text+'[/COLOR][/I]', "plot":'Télé-Québec en direct.'  })
     setFanart(liz,ADDON_FANART)
     liz.setProperty('IsPlayable', 'true')
@@ -54,25 +67,25 @@ def ajouterRepertoire(show):
     nom = show['nom']
     url = show['url']
     iconimage =show['image']
-    genreId = show['genreId']
     resume = remove_any_html_tags(show['resume'])
     fanart = show['fanart']
     filtres = show['filtres']
 
     if resume=='':
-        resume = urllib.unquote(ADDON.getAddonInfo('id')+' v.'+ADDON.getAddonInfo('version'))
+        resume = unquote(ADDON.getAddonInfo('id') +' v.'+ADDON.getAddonInfo('version'))
     if ADDON.getSetting('EmissionNameInPlotEnabled') == 'true':
-        resume = '[B]'+nom+'[/B][CR]'+urllib.unquote(resume)
+        resume = '[B]'+nom+'[/B][CR]' + unquote(resume)
     if iconimage=='':
         iconimage = ADDON_IMAGES_BASEPATH+'default-folder.png'
 
     """ function docstring """
     entry_url = sys.argv[0]+"?url="+url+\
         "&mode=1"+\
-        "&filters="+urllib.quote(simplejson.dumps(filtres))
+        "&filters="+quote(simplejson.dumps(filtres))
 
     is_it_ok = True
-    liz = xbmcgui.ListItem(nom,iconImage=iconimage,thumbnailImage=iconimage)
+    liz = xbmcgui.ListItem(nom)
+    liz.setArt({ 'thumb' : iconimage } )
 
     liz.setInfo(\
         type="Video",\
@@ -101,7 +114,6 @@ def ajouterVideo(show):
     name = show['nom']
     the_url = show['url']
     iconimage = show['image']
-    url_info = 'none'
     finDisponibilite = show['endDateTxt']
 
     resume = remove_any_html_tags(show['resume'] +'[CR][CR]' + finDisponibilite)
@@ -114,7 +126,7 @@ def ajouterVideo(show):
     saison = show['seasonNo']
 
     is_it_ok = True
-    entry_url = sys.argv[0]+"?url="+urllib.quote_plus(the_url)+"&sourceId="+(sourceId)
+    entry_url = sys.argv[0]+"?url="+quote_plus(the_url)+"&sourceId="+(sourceId)
 
     if resume != '':
         if ADDON.getSetting('EmissionNameInPlotEnabled') == 'true':
@@ -155,7 +167,6 @@ def jouer_live():
     uri = liveStreamURL()
     if uri:
         item = xbmcgui.ListItem('Télé-Québec - EN DIRECT', path=uri)
-        play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
         xbmc.executebuiltin("Notification(Aucun lien disponible,Incapable d'obtenir le lien du vidéo,5000)")
@@ -200,8 +211,8 @@ def getURI(video_json,refID):
     
 def m3u8BC(sourceId):
     config = getBrightcoveConfig()
-    log('KEY : %s' % config['key'])
-    log('Ad_Config_ID : %s' %config['ad'])
+    log.log('KEY : %s' % config['key'])
+    log.log('Ad_Config_ID : %s' %config['ad'])
     header = {'key':'Accept','value':'application/json;pk=%s'% config['key'] }
     a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=%s' %(sourceId,config['ad']) ,True,[header]))
     last = None
@@ -227,7 +238,7 @@ def getBrightcoveConfig():
         answer['ad'] = jsonData['ad_config_id']
 
     except Exception:
-        log('ERREUR, impossible de récupérer dynamiquement la configuration de Brightcove.')
+        log.log('ERREUR, impossible de récupérer dynamiquement la configuration de Brightcove.')
  
     return answer
 
@@ -257,14 +268,14 @@ def obtenirMeilleurStream(pl,word='http'):
             try:
                 match = re.search(r'BANDWIDTH=(\d+)',line)
                 bandWidth = int(match.group(1))
-                log('LE courant bandwitdh vaut %s' % bandWidth)
+                log.log('LE courant bandwitdh vaut %s' % bandWidth)
             except :
                 bandWidth = None
             res = None
             try:
                 match = re.search(r'RESOLUTION=\d+x(\d+)',line)
                 res = int(match.group(1))
-                log('LE résolution courante vaut %s' % res)
+                log.log('LE résolution courante vaut %s' % res)
             except :
                 res = None
         elif line.startswith(word):

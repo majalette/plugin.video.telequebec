@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import urllib2, simplejson, parse, cache, re, xbmcaddon,xbmc
-from log import log
+import sys, simplejson, re, xbmcaddon,xbmc
+from . import cache, html, log, parse
+import simplejson as json
+
+if sys.version_info.major >= 3:
+    # Python 3 stuff
+    from urllib.parse import unquote, quote_plus, unquote_plus, urljoin, urlparse
+    from urllib.request import Request, urlopen
+else:
+    # Python 2 stuff
+    from urlparse import urljoin, urlparse
+    from urllib import quote_plus, unquote_plus, unquote
+    from urllib2 import Request, urlopen
+
 
 BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/'
 AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/Az'
@@ -32,7 +44,7 @@ def dictOfGenres(filtres):
 
     for item in liste :
         item['isDir']= True
-        item['nom']= urllib2.unquote(item['nom'])
+        item['nom']= unquote(item['nom'])
         item['url'] = AZ_URL
         item['image']=xbmcaddon.Addon().getAddonInfo('path')+'/icon.png'
         item['fanart']=xbmcaddon.Addon().getAddonInfo('path')+'/fanart.jpg'
@@ -49,7 +61,7 @@ def dictOfMainDirs(filtres):
 
     for item in liste :
         item['isDir']= True
-        item['nom']= urllib2.unquote(item['nom'])
+        item['nom']= unquote(item['nom'])
         item['image']=xbmcaddon.Addon().getAddonInfo('path')+'/icon.png'
         item['fanart']=xbmcaddon.Addon().getAddonInfo('path')+'/fanart.jpg'
         item['filtres']= parse.getCopy(filtres)
@@ -64,7 +76,7 @@ def dictOfPopulaires(filtres):
     liste.append({'genreId': -23, 'nom': 'Populaires depuis 1 mois', 'url' : 'Month/','resume':'Les videos populaires depuis 1 mois.'})
     for item in liste :
         item['isDir']= True
-        item['nom']= urllib2.unquote(item['nom'])
+        item['nom']= unquote(item['nom'])
         item['image']=xbmcaddon.Addon().getAddonInfo('path')+'/icon.png'
         item['fanart']=xbmcaddon.Addon().getAddonInfo('path')+'/fanart.jpg'
         item['filtres']= parse.getCopy(filtres)

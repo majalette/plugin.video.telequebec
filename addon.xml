@@ -1,15 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.telequebec"
        name="Télé-Québec"
-       version="3.4.0"
-       provider-name="dualB"
->
+       version="4.0.0"
+       provider-name="dualB">
     <requires>
-        <import addon="xbmc.python" version="2.1.0"/>
         <import addon="xbmc.json" version="6.0.0"/>
         <import addon="xbmc.addon" version="12.0.0"/>
-        <import addon="script.module.simplejson" version="2.0.10"/>
-        <import addon="inputstream.adaptive" version="1.0.8"/>
+        <import addon="script.module.simplejson" version="3.16.1"/>
+        <import addon="script.module.inputstreamhelper" version="0.5.2"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>
@@ -20,5 +18,9 @@
 	    <summary lang="fr">Addiciel vidéo donnant accès à la zone vidéo de TéléQuébec.TV</summary>
         <description>Play all videos from Télé-Québec.TV site. Most videos can only be accessed in Canada.</description>
 	    <description lang="fr">Cet addiciel permet d'accèder à la zone vidéo de TéléQuébec.TV.  La plupart des vidéos ne sont accessibles qu'au Canada.</description>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
     </extension>
 </addon>

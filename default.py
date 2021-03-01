@@ -2,10 +2,19 @@
 
 # version 3.2.2 - By dualB
 
-import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
+import os, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
 from resources.lib.log import log
 from resources.lib import content, navig
+
+if sys.version_info.major >= 3:
+    # Python 3 stuff
+    from urllib.parse import quote_plus, unquote_plus, unquote
+else:
+    # Python 2 stuff
+    from urllib import quote_plus, unquote_plus, unquote
+
+ADDON = xbmcaddon.Addon()
 
 def get_params():
     """ function docstring """
@@ -47,24 +56,24 @@ FILTERS = ''
 filtres = {}
 
 try:
-    URL = urllib.unquote_plus(PARAMS["url"])
+    URL = unquote_plus(PARAMS["url"])
     log("PARAMS['url']:"+URL)
-except StandardError:
+except Exception:
     pass
 try:
     MODE = int(PARAMS["mode"])
     log("PARAMS['mode']:"+str(MODE))
-except StandardError:
+except Exception:
     pass
 try:
-    FILTERS = urllib.unquote_plus(PARAMS["filters"])
+    FILTERS = unquote_plus(PARAMS["filters"])
     log("PARAMS['filters']:"+str(FILTERS))
-except StandardError:
+except Exception:
     FILTERS = content.FILTRES
 try:
-    SOURCE_ID = urllib.unquote_plus(PARAMS["sourceId"])
+    SOURCE_ID = unquote_plus(PARAMS["sourceId"])
     log("PARAMS['sourceId']:"+str(SOURCE_ID))
-except StandardError:
+except Exception:
     pass
 
 filtres = simplejson.loads(FILTERS)
@@ -79,11 +88,11 @@ else:
     navig.peupler(filtres)
     set_content('Videos')
 
-if MODE is not 99:
+if MODE != 99:
     set_sorting_methods(MODE)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-if MODE is not 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') == 'true':
+if MODE != 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') == 'true':
     PATH = xbmc.translatePath('special://temp').decode('utf-8')
     FILENAMES = next(os.walk(PATH))[2]
     for i in FILENAMES:

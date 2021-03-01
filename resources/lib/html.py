@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import re, socket, urllib2, xbmc, ssl
-from log import log
+import sys, re, socket, xbmc, ssl
+from . import log
+
+if sys.version_info.major >= 3:
+    # Python 3 stuff
+    from urllib.parse import unquote, quote, quote_plus, unquote_plus, urljoin, urlparse
+    from urllib.request import Request, urlopen
+    from urllib.error import HTTPError, URLError
+else:
+    # Python 2 stuff
+    from urlparse import urljoin, urlparse
+    from urllib import quote_plus, unquote_plus, unquote, quote
+    from urllib2 import Request, urlopen, HTTPError, URLError
 
 def get_url_txt(the_url,verified=True,headers=[]):
     """ function docstring """
-    log('Tentative de connection a : ' + the_url)
-    req = urllib2.Request(the_url)
+    log.log('Tentative de connection a : ' + the_url)
+    req = Request(the_url)
     
     for header in headers:
         req.add_header(header['key'],header['value'])
@@ -21,23 +32,24 @@ def get_url_txt(the_url,verified=True,headers=[]):
     try:
         context = None
         if not verified:
-            log('Requete en SSL NON VERIFIE')
+            log.log('Requete en SSL NON VERIFIE')
             context = ssl._create_unverified_context()
-        response = urllib2.urlopen(req,context=context)
+        response = urlopen(req,context=context)
         link = response.read()
-        link = urllib2.quote(link)
-        link = urllib2.unquote(link)
+        link = quote(link)
+        link = unquote(link)
         response.close()
         return link
-    except urllib2.HTTPError, e:
-        log('HTTPError = ' + str(e.code))
-        log(e.reason)
+    except HTTPError as e:
+        log.log('HTTPError = ' + str(e.code))
+        log.log(e.reason)
         return ''
-    except urllib2.URLError, e:
-        log('URLError = ' + str(e.reason))
+    except URLError as e:
+        log.log('URLError = ' + str(e.reason))
         return ''
-    except httplib.HTTPException, e:
-        log('HTTPException')
+    except Exception as e:
+        log.log('Exception')
+        log.log(e)
         return ''
 
 
