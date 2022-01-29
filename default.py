@@ -2,7 +2,7 @@
 
 # version 3.2.2 - By dualB
 
-import os, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
+import os, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui, web_pdb
 
 from resources.lib.log import log
 from resources.lib import content, navig
@@ -15,6 +15,8 @@ else:
     from urllib import quote_plus, unquote_plus, unquote
 
 ADDON = xbmcaddon.Addon()
+
+web_pdb.set_trace()
 
 def get_params():
     """ function docstring """
