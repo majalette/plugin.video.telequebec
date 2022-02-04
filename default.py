@@ -2,7 +2,7 @@
 
 # version 3.2.2 - By dualB
 
-import os, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui, web_pdb
+import os, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui, web_pdb, xbmcvfs
 
 from resources.lib.log import log
 from resources.lib import content, navig
@@ -16,7 +16,7 @@ else:
 
 ADDON = xbmcaddon.Addon()
 
-web_pdb.set_trace()
+
 
 def get_params():
     """ function docstring """
@@ -95,7 +95,7 @@ if MODE != 99:
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 if MODE != 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') == 'true':
-    PATH = xbmc.translatePath('special://temp').decode('utf-8')
+    PATH = xbmcvfs.translatePath('special://temp').decode('utf-8')
     FILENAMES = next(os.walk(PATH))[2]
     for i in FILENAMES:
         if ".fi" in i:
