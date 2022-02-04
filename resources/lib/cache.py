@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import xbmcaddon, os, xbmc, time, sys, xbmcvfs
+import os, time, sys, io
+from kodi_six import xbmcaddon, xbmcvfs, xbmc
 from . import log, html
 
 ADDON = xbmcaddon.Addon()
@@ -27,6 +28,7 @@ def is_cached_content_expired(last_update):
 def get_cached_content(path,verified=True,headers=[]):
     """ function docstring """
     content = None
+    
     try:
         filename = get_cached_filename(path)
         if os.path.exists(filename) and not is_cached_content_expired(os.path.getmtime(filename)):
@@ -51,5 +53,6 @@ def get_cached_content(path,verified=True,headers=[]):
 
 def get_cached_filename(path):
     """ function docstring """
-    filename = "%s" % _hash(repr(path)).hexdigest()
+    utfName = repr(path).encode('utf-8')
+    filename = "%s" % _hash(utfName).hexdigest()
     return os.path.join(ADDON_CACHE_BASEDIR, filename)

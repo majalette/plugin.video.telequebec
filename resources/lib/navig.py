@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import sys, xbmcgui, xbmcplugin, xbmcaddon, re, simplejson, xbmc
+import sys, re, simplejson
+from kodi_six import xbmc, xbmcaddon, xbmcplugin, xbmcgui
 from . import log, parse, content, cache
 
 if sys.version_info.major >= 3:
@@ -135,7 +136,9 @@ def ajouterVideo(show):
         resume = name.lstrip()
 
     liz = xbmcgui.ListItem(\
-        remove_any_html_tags(name), iconImage=ADDON_IMAGES_BASEPATH+"default-video.png", thumbnailImage=iconimage)
+        # remove_any_html_tags(name), iconImage=ADDON_IMAGES_BASEPATH+"default-video.png", thumbnailImage=iconimage)
+        remove_any_html_tags(name))
+    liz.setArt({'icon': ADDON_IMAGES_BASEPATH+"default-video.png"})
     liz.setInfo(\
         type="Video",\
         infoLabels={\
@@ -194,8 +197,8 @@ def jouer_video(url,media_uid):
         if uri:
             item = xbmcgui.ListItem(\
                 video_json['title'],\
-                iconImage=thumbnail_url,\
-                thumbnailImage=thumbnail_url, path=uri)
+                path=uri)
+            item.setArt({'icon': thumbnail_url})
             play_item = xbmcgui.ListItem(path=uri)
             xbmcplugin.setResolvedUrl(__handle__,True, item)
         else:

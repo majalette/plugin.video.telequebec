@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import sys, simplejson, re, xbmcaddon,xbmc
+import sys, re
+from kodi_six import xbmc, xbmcaddon
 from . import cache, html, log, parse
-import simplejson as json
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 if sys.version_info.major >= 3:
     # Python 3 stuff
@@ -252,17 +257,18 @@ def getImage(url,width,height):
     return link
     
 def getShow(mediaBundleId):
-    database = simplejson.loads(cache.get_cached_content(MEDIA_BUNDLE_URL + str(mediaBundleId)))
+    database = json.loads(cache.get_cached_content(MEDIA_BUNDLE_URL + str(mediaBundleId)))
     return database['data']
 
 def getLinkPop(url):
-    database = simplejson.loads(cache.get_cached_content(POPULAIRE_URL + str(url)))
+    
+    database = json.loads(cache.get_cached_content(POPULAIRE_URL + str(url)))
     return database['data'][0]
 
 def getJsonBlock(url, block):
     dataBlock = []
     try:
-        db = simplejson.loads(cache.get_cached_content(url))
+        db = json.loads(cache.get_cached_content(url))
         dataBlock = db['data'][block]['items']
     except Exception:
         dataBlock = []
