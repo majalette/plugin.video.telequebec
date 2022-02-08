@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-import sys, re, simplejson
+import sys, re
 from kodi_six import xbmc, xbmcaddon, xbmcplugin, xbmcgui
 from . import log, parse, content, cache
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 if sys.version_info.major >= 3:
     # Python 3 stuff
@@ -82,7 +87,7 @@ def ajouterRepertoire(show):
     """ function docstring """
     entry_url = sys.argv[0]+"?url="+url+\
         "&mode=1"+\
-        "&filters="+quote(simplejson.dumps(filtres))
+        "&filters="+quote(json.dumps(filtres))
 
     is_it_ok = True
     liz = xbmcgui.ListItem(nom)
@@ -155,10 +160,12 @@ def ajouterVideo(show):
     liz.setProperty('IsPlayable', 'true')
     
     #Assumé que tous les liens sont pour Brightcove
-    liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
-    liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-    liz.setMimeType('application/dash+xml')
     liz.setContentLookup(False)
+    #deprecated inputstreamaddon prop was causing playback failure
+    liz.setProperty('inputstream', 'inputstream.adaptive')
+    liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+    liz.setMimeType('application/xml+dash')
+    
 
     is_it_ok = xbmcplugin.addDirectoryItem(handle=__handle__, url=entry_url, listitem=liz, isFolder=False)
     return is_it_ok
@@ -181,7 +188,7 @@ def liveStreamURL():
     return 'https://bcovlive-a.akamaihd.net/575d86160eb143458d51f7ab187a4e68/us-east-1/6101674910001/' + obtenirMeilleurStream(a,'profile')
    
 def jouer_video(url,media_uid):
-
+    #import web_pdb; web_pdb.set_trace()
     if "live" in url:
         jouer_live()
     else:
@@ -190,7 +197,7 @@ def jouer_video(url,media_uid):
         refID = ref[len(ref)-1]
 
       
-        video_json = simplejson.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v4/player/%s' % refID))
+        video_json = json.loads(cache.get_cached_content('https://mnmedias.api.telequebec.tv/api/v4/player/%s' % refID))
         thumbnail_url = content.getImage(video_json['imageUrlTemplate'], '320', '180')
         
         uri = getURI(video_json,refID)
@@ -213,11 +220,13 @@ def getURI(video_json,refID):
             return m3u8BC(stream['sourceId'])       
     
 def m3u8BC(sourceId):
+    if sourceId == '6155415616001':
+        import web_pdb; web_pdb.set_trace()
     config = getBrightcoveConfig()
     log.log('KEY : %s' % config['key'])
     log.log('Ad_Config_ID : %s' %config['ad'])
     header = {'key':'Accept','value':'application/json;pk=%s'% config['key'] }
-    a= simplejson.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=%s' %(sourceId,config['ad']) ,True,[header]))
+    a= json.loads(cache.get_cached_content('https://edge.api.brightcove.com/playback/v1/accounts/6150020952001/videos/%s?ad_config_id=%s' %(sourceId,config['ad']) ,True,[header]))
     last = None
     for source in a['sources']:
         protocol = "dash+xml"
@@ -236,7 +245,7 @@ def getBrightcoveConfig():
     answer['ad'] = 'dcd6de5f-a864-4ef6-b416-dcdc4f4af216'
     try:
         data = cache.get_cached_content('https://players.brightcove.net/6150020952001/default_default/config.json',True)
-        jsonData =  simplejson.loads(data)
+        jsonData =  json.loads(data)
         answer['key']  =jsonData['video_cloud']['policy_key']
         answer['ad'] = jsonData['ad_config_id']
 

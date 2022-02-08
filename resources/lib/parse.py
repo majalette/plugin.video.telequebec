@@ -31,7 +31,7 @@ def ListeVideosGroupees(filtres):
     if index >= len(filtresShow):
         return liste
     else:
-        groupBy = filtresShow.keys()[index]
+        groupBy = list(filtresShow)[index]
         showsGroupes = {}
         cle = ''
         

@@ -33,14 +33,18 @@ def get_cached_content(path,verified=True,headers=[]):
         filename = get_cached_filename(path)
         if os.path.exists(filename) and not is_cached_content_expired(os.path.getmtime(filename)):
             log.log('Lecture en CACHE du contenu suivant :' + path)
-            content = open(filename).read()
+            with io.open(filename, 'r', encoding='utf-8') as fo:
+                content = fo.read()
         else:
+            
             log.log('Lecture en LIGNE du contenu suivant :' + path)
             content = html.get_url_txt(path,verified,headers)
             if len(content)>0:
                 try:
                     if sys.version >= "3":
-                        file(filename, "w").write(content) # cache the requested web content
+                        with io.open(filename, 'w', encoding='utf-8') as fo:
+                            fo.write(content)
+                            # open(filename, "w", encoding="utf-8").write(content) # cache the requested web content
                     else:
                         open(filename, "w").write(content) # cache the requested web content
                 except Exception:
