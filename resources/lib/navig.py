@@ -143,7 +143,8 @@ def ajouterVideo(show):
     liz = xbmcgui.ListItem(\
         # remove_any_html_tags(name), iconImage=ADDON_IMAGES_BASEPATH+"default-video.png", thumbnailImage=iconimage)
         remove_any_html_tags(name))
-    liz.setArt({'icon': ADDON_IMAGES_BASEPATH+"default-video.png"})
+    #liz.setArt({'icon': ADDON_IMAGES_BASEPATH+"default-video.png"})
+    liz.setArt({ 'thumb' : iconimage } )
     liz.setInfo(\
         type="Video",\
         infoLabels={\
@@ -220,8 +221,6 @@ def getURI(video_json,refID):
             return m3u8BC(stream['sourceId'])       
     
 def m3u8BC(sourceId):
-    if sourceId == '6155415616001':
-        import web_pdb; web_pdb.set_trace()
     config = getBrightcoveConfig()
     log.log('KEY : %s' % config['key'])
     log.log('Ad_Config_ID : %s' %config['ad'])
