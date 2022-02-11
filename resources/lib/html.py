@@ -2,7 +2,6 @@
 # version 3.2.2 - By dualB
 
 import sys, re, socket, ssl
-from kodi_six import xbmc
 from . import log
 
 if sys.version_info.major >= 3:

@@ -2,7 +2,7 @@
 # version 3.2.2 - By dualB
 
 import os, time, sys, io
-from kodi_six import xbmcaddon, xbmcvfs, xbmc
+import xbmcaddon, xbmcvfs
 from . import log, html
 
 ADDON = xbmcaddon.Addon()

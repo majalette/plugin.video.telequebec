@@ -2,7 +2,7 @@
 
 import os
 import sys
-from kodi_six import xbmc, xbmcaddon, xbmcgui, xbmcvfs
+import xbmcaddon, xbmcgui, xbmcvfs
 from xbmcaddon import Addon
 
 addon = Addon('plugin.video.telequebec')

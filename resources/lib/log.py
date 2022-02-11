@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # version 3.2.2 - By dualB
 
-from kodi_six import xbmc, xbmcaddon
+import xbmc, xbmcaddon
 
 def log(msg):
     """ function docstring """

@@ -2,7 +2,7 @@
 # version 3.2.2 - By dualB
 
 import sys, re
-from kodi_six import xbmc, xbmcaddon
+import xbmcaddon
 from . import cache, html, log, parse
 
 try:

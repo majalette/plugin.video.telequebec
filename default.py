@@ -3,7 +3,7 @@
 # version 3.2.2 - By dualB
 
 import os, sys, traceback, simplejson
-from kodi_six import xbmcaddon, xbmcplugin, xbmcvfs, xbmc
+import xbmcaddon, xbmcplugin, xbmcvfs
 
 from resources.lib.log import log
 from resources.lib import content, navig
