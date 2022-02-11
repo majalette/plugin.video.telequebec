@@ -189,7 +189,6 @@ def liveStreamURL():
     return 'https://bcovlive-a.akamaihd.net/575d86160eb143458d51f7ab187a4e68/us-east-1/6101674910001/' + obtenirMeilleurStream(a,'profile')
    
 def jouer_video(url,media_uid):
-    #import web_pdb; web_pdb.set_trace()
     if "live" in url:
         jouer_live()
     else:
