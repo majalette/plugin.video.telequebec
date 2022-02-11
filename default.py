@@ -2,11 +2,16 @@
 
 # version 3.2.2 - By dualB
 
-import os, sys, traceback, simplejson
+import os, sys, traceback
 import xbmcaddon, xbmcplugin, xbmcvfs
 
 from resources.lib.log import log
 from resources.lib import content, navig
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 if sys.version_info.major >= 3:
     # Python 3 stuff
@@ -79,7 +84,7 @@ try:
 except Exception:
     pass
 
-filtres = simplejson.loads(FILTERS)
+filtres = json.loads(FILTERS)
 
 if SOURCE_ID !='':
     navig.jouer_video(URL,SOURCE_ID)
