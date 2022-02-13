@@ -294,5 +294,5 @@ def obtenirMeilleurStream(pl,word='http'):
                     if res != None and res <= maxres:
                         maxBW = bandWidth
                         uri = line
-    log('LE BITRATE CHOISI EST ________%s' % maxBW)
+    log.log('LE BITRATE CHOISI EST ________%s' % maxBW)
     return uri
