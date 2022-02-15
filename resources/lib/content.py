@@ -21,6 +21,15 @@ else:
     from urllib2 import Request, urlopen
 
 
+# Nouveau site de TQ
+# Account id : 6101674910001
+# Policy Key : BCpkADawqM2i8RZms9AMLB7fASCDVh6nXbM3w8f53CuvNwHk2vWwoJ-JjQUQ6e-rizFEiBj9FCldU7jMYNsViVF2-0I2EMUAAaRtGPzD1RLAco3K6aQaEUjfaR-BB0b3X-ARQ3v9-MQSg_bt
+
+# Episode de robocar poli
+# video id : 6211205520001
+
+SUR_DEMANDE = 'https://beacon.playback.api.brightcove.com/telequebec/api/menus/0/option/29060-sur-demande?device_type=web&device_layout=web'
+
 BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/'
 AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/Az'
 DOSSIERS_URL = 'http://zonevideo.api.telequebec.tv/data/v2/[YourApiKey]/folders'
@@ -34,9 +43,18 @@ LABEL = 'label'
 FILTRES = '{"content":{"genreId":"","mediaBundleId":-1},"show":{"' + SEASON + '":"","' + EPISODE + '":"","' + LABEL + '":""},"fullNameItems":[],"sourceId":""}'
 INTEGRAL = 'Integral'
 
+def getCategories():
+    liste = []
+    raw = json.loads(cache.get_cached_content(SUR_DEMANDE))
+    
+    blocks = raw['data']['screen']['blocks']
+    for block in blocks :
+        liste.append({'name' : block['widgets'][0]['name'], 'playlist_url' : block['widgets'][0]['playlist']['playlist_ref']})
+    return liste
+
 def dictOfGenres(filtres):
     liste =[]
-    liste.append({'genreId': 0, 'nom': '[B]A %C3%A0 Z - Toutes les cat%C3%A9gories[/B]','resume':'Tout le contenu disponible.'})
+    liste.append({'genreId': 0, 'nom': 'Coucou','resume':'La section jeunesse de TQ'})
     liste.append({'genreId': 1, 'nom': 'Documentaires','resume':'Les documentaires.'})
     liste.append({'genreId': 2, 'nom': 'Famille', 'resume':'Pour toute la famille.'})
     liste.append({'genreId': 3, 'nom': 'Films','resume':'Les films.'})

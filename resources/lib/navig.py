@@ -12,7 +12,7 @@ except ImportError:
 
 if sys.version_info.major >= 3:
     # Python 3 stuff
-    from urllib.parse import quote_plus, unquote, quote
+    from urllib.parse import quote_plus, unquote, quote, urlencode
     from urllib.request import Request, urlopen
 else:
     # Python 2 stuff
@@ -26,24 +26,44 @@ ADDON_FANART = ADDON.getAddonInfo('path')+'/resources/fanart.jpg'
 __handle__ = int(sys.argv[1])
 
 def peupler(filtres):
-    if filtres['content']['mediaBundleId']>0:
-        ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
-    else:
-        if filtres['content']['genreId'] == "":
-            filtres['content']['genreId'] = 0
+    
+    ajouterCategories()
+    ajouterLive()
+    
 
-        genreId = int(filtres['content']['genreId'])
-        if genreId==-2:
-            ajouterItemAuMenu(content.dictOfPopulaires(filtres))
-        elif genreId>=-23 and genreId<=-21:
-            ajouterItemAuMenu(content.get_liste_populaire(filtres))
-        elif genreId!=0:
-            ajouterItemAuMenu(content.get_liste_emissions(filtres))
-        else:
-            ajouterLive()
-            ajouterItemAuMenu(content.dictOfMainDirs(filtres))
-            ajouterItemAuMenu(content.dictOfGenres(filtres))
+    # if filtres['content']['mediaBundleId']>0:
+    #     ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
+    # else:
+    #     if filtres['content']['genreId'] == "":
+    #         filtres['content']['genreId'] = 0
+
+    #     genreId = int(filtres['content']['genreId'])
+    #     if genreId==-2:
+    #         ajouterItemAuMenu(content.dictOfPopulaires(filtres))
+    #     elif genreId>=-23 and genreId<=-21:
+    #         ajouterItemAuMenu(content.get_liste_populaire(filtres))
+    #     elif genreId!=0:
+    #         ajouterItemAuMenu(content.get_liste_emissions(filtres))
+    #     else:
+    #         ajouterLive()
+    #         ajouterItemAuMenu(content.dictOfMainDirs(filtres))
+    #         ajouterItemAuMenu(content.dictOfGenres(filtres))
            
+def ajouterCategories():
+    categories = content.getCategories()
+    liste = []  
+    for categorie in categories :
+        list_item = xbmcgui.ListItem(label=categorie['name'])
+        list_item.setInfo('video', {'title': categorie['name']})
+        url = sys.argv[0]+'?'
+        params = {'action': 'listing', 'cat': categorie['name']}
+        log.log(url + urlencode(params))
+        liste.append((url + urlencode(params), list_item, True))
+
+    xbmcplugin.addDirectoryItems(__handle__, liste, len(liste))
+    # xbmcplugin.addSortMethod(__handle__, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+    xbmcplugin.endOfDirectory(__handle__)
+
 def ajouterLive():
     text = 'Télé-Québec - EN DIRECT'
     liz = xbmcgui.ListItem(text)
